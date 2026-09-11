@@ -1,119 +1,55 @@
 const express = require("express");
-
-const {
-  data,
-  nextId
-} = require("./dataStore");
-
-const {
-  stages
-} = require("./stages");
+const { data, nextId } = require("./dataStore");
+const { stages } = require("./stages");
 
 const router = express.Router();
-
-
-/*
-  Compare Query Parameters
-*/
 
 function sameQuery(actual, expected) {
   const actualKeys = Object.keys(actual).sort();
   const expectedKeys = Object.keys(expected).sort();
 
-  if (actualKeys.length !== expectedKeys.length) {
-    return false;
-  }
-
-  return expectedKeys.every(
-    key =>
-      String(actual[key]) ===
-      String(expected[key])
+  return (
+    actualKeys.length === expectedKeys.length &&
+    expectedKeys.every(
+      key => String(actual[key]) === String(expected[key])
+    )
   );
 }
 
-
-/*
-  Compare Request Body
-
-  The order of properties does not matter.
-*/
-
 function sameBody(actual, expected) {
   if (expected === null) {
-    return (
-      actual == null ||
-      Object.keys(actual || {}).length === 0
-    );
+    return actual == null || Object.keys(actual || {}).length === 0;
   }
 
-  if (
-    typeof actual !== "object" ||
-    actual === null
-  ) {
+  if (typeof actual !== "object" || actual === null) {
     return false;
   }
 
   const actualKeys = Object.keys(actual).sort();
   const expectedKeys = Object.keys(expected).sort();
 
-  if (
-    actualKeys.length !== expectedKeys.length
-  ) {
-    return false;
-  }
-
-  return expectedKeys.every(key => {
-    return (
-      Object.prototype.hasOwnProperty.call(
-        actual,
-        key
-      ) &&
-      actual[key] === expected[key]
-    );
-  });
-}
-
-
-/*
-  Find the current stage
-*/
-
-function getStage(stageId) {
-  const id = Number(stageId);
-
-  return stages.find(
-    stage => stage.id === id
-  );
-}
-
-
-/*
-  Check whether the request matches
-  the correct solution of the stage.
-*/
-
-function validateStageRequest(req, stage) {
-  const actualPath =
-    `/api${req.path}`;
-
   return (
-    req.method === stage.method &&
-    actualPath === stage.path &&
-    sameQuery(
-      req.query,
-      stage.query
-    ) &&
-    sameBody(
-      req.body,
-      stage.body
+    actualKeys.length === expectedKeys.length &&
+    expectedKeys.every(
+      key =>
+        Object.prototype.hasOwnProperty.call(actual, key) &&
+        actual[key] === expected[key]
     )
   );
 }
 
+function getStage(stageId) {
+  return stages.find(stage => stage.id === Number(stageId));
+}
 
-/*
-  Send a JSON response to the client.
-*/
+function validateStageRequest(req, stage) {
+  return (
+    req.method === stage.method &&
+    `/api${req.path}` === stage.path &&
+    sameQuery(req.query, stage.query) &&
+    sameBody(req.body, stage.body)
+  );
+}
 
 function sendStageResult(
   res,
@@ -123,72 +59,34 @@ function sendStageResult(
   payload,
   message
 ) {
-  return res
-    .status(status)
-    .json({
-      correct,
-      stageId: stage.id,
-      message,
-      statusCode: status,
-      data: payload
-    });
+  return res.status(status).json({
+    correct,
+    stageId: stage.id,
+    message,
+    statusCode: status,
+    data: payload
+  });
 }
 
-
-/*
-  GET /api/flights
-*/
-
-function getFlights(req, res, stage) {
+function getFlights(query) {
   let flights = [...data.flights];
 
-  /*
-    Filter by destination
-  */
-
-  if (req.query.to) {
+  if (query.to) {
     flights = flights.filter(
       flight =>
-        flight.to.toLowerCase() ===
-        String(req.query.to).toLowerCase()
+        flight.to.toLowerCase() === String(query.to).toLowerCase()
     );
   }
 
-  /*
-    Filter by departure location
-  */
-
-  if (req.query.from) {
+  if (query.from) {
     flights = flights.filter(
       flight =>
-        flight.from.toLowerCase() ===
-        String(req.query.from).toLowerCase()
+        flight.from.toLowerCase() === String(query.from).toLowerCase()
     );
   }
 
-  /*
-    Sorting
-  */
-
-  if (req.query.sort) {
-    const field =
-      String(req.query.sort);
-
-    const allowedFields = [
-      "price",
-      "seats"
-    ];
-
-    if (!allowedFields.includes(field)) {
-      return sendStageResult(
-        res,
-        stage,
-        false,
-        400,
-        null,
-        "Invalid sort field. Use price or seats."
-      );
-    }
+  if (query.sort) {
+    const field = String(query.sort);
 
     flights.sort((a, b) => {
       const comparison =
@@ -198,43 +96,248 @@ function getFlights(req, res, stage) {
           ? -1
           : 0;
 
-      if (
-        req.query.order === "desc"
-      ) {
-        return -comparison;
-      }
-
-      return comparison;
+      return query.order === "desc"
+        ? -comparison
+        : comparison;
     });
   }
 
+  return flights;
+}
+
+/*
+  This returns a preview only.
+  It never changes the data in memory.
+*/
+function getExpectedStageResult(stage) {
+  const path = stage.path.replace("/api", "");
+  const flightMatch = path.match(/^\/flights\/(\d+)$/);
+  const bookingsMatch =
+    path.match(/^\/flights\/(\d+)\/bookings$/);
+  const bookingMatch = path.match(/^\/bookings\/(\d+)$/);
+
+  if (stage.method === "GET" && path === "/flights") {
+    return {
+      statusCode: 200,
+      data: getFlights(stage.query)
+    };
+  }
+
+  if (stage.method === "GET" && bookingsMatch) {
+    const flightId = Number(bookingsMatch[1]);
+    const flight = data.flights.find(
+      item => item.id === flightId
+    );
+
+    return flight
+      ? {
+          statusCode: 200,
+          data: data.bookings.filter(
+            booking => booking.flightId === flightId
+          )
+        }
+      : {
+          statusCode: 404,
+          data: null
+        };
+  }
+
+  if (stage.method === "GET" && flightMatch) {
+    const flight = data.flights.find(
+      item => item.id === Number(flightMatch[1])
+    );
+
+    return flight
+      ? {
+          statusCode: 200,
+          data: flight
+        }
+      : {
+          statusCode: 404,
+          data: null
+        };
+  }
+
+  if (stage.method === "POST" && path === "/flights") {
+    return {
+      statusCode: 201,
+      data: {
+        id: nextId(data.flights),
+        ...stage.body
+      }
+    };
+  }
+
+  if (stage.method === "PATCH" && flightMatch) {
+    const flight = data.flights.find(
+      item => item.id === Number(flightMatch[1])
+    );
+
+    return flight
+      ? {
+          statusCode: 200,
+          data: {
+            ...flight,
+            ...stage.body
+          }
+        }
+      : {
+          statusCode: 404,
+          data: null
+        };
+  }
+
+  if (stage.method === "DELETE" && bookingMatch) {
+    const booking = data.bookings.find(
+      item => item.id === Number(bookingMatch[1])
+    );
+
+    return booking
+      ? {
+          statusCode: 200,
+          data: booking
+        }
+      : {
+          statusCode: 404,
+          data: null
+        };
+  }
+if (stage.method === "POST" && path === "/bookings") {
+  return {
+    statusCode: 201,
+    data: {
+      id: nextId(data.bookings),
+      ...stage.body
+    }
+  };
+}
+
+if (stage.method === "PATCH" && bookingMatch) {
+  const booking = data.bookings.find(
+    item => item.id === Number(bookingMatch[1])
+  );
+
+  return booking
+    ? {
+        statusCode: 200,
+        data: {
+          ...booking,
+          ...stage.body
+        }
+      }
+    : {
+        statusCode: 404,
+        data: null
+      };
+}
+
+  return {
+    statusCode: 404,
+    data: null
+  };
+}function getAttemptedGetResponse(req) {
+  if (req.method !== "GET") {
+    return null;
+  }
+
+  if (req.path === "/flights") {
+    return {
+      statusCode: 200,
+      data: getFlights(req.query)
+    };
+  }
+
+  const bookingsMatch =
+    req.path.match(/^\/flights\/(\d+)\/bookings$/);
+
+  if (bookingsMatch) {
+    const flightId = Number(bookingsMatch[1]);
+
+    const flight = data.flights.find(
+      item => item.id === flightId
+    );
+
+    return flight
+      ? {
+          statusCode: 200,
+          data: data.bookings.filter(
+            booking => booking.flightId === flightId
+          )
+        }
+      : {
+          statusCode: 404,
+          data: null
+        };
+  }
+
+  const flightMatch =
+    req.path.match(/^\/flights\/(\d+)$/);
+
+  if (flightMatch) {
+    const flight = data.flights.find(
+      item => item.id === Number(flightMatch[1])
+    );
+
+    return flight
+      ? {
+          statusCode: 200,
+          data: flight
+        }
+      : {
+          statusCode: 404,
+          data: null
+        };
+  }
+
+  return {
+    statusCode: 404,
+    data: null
+  };
+}
+
+function stageGuard(handler) {
+  return (req, res) => {
+    const stage = getStage(req.header("X-Stage-Id"));
+
+    if (!stage) {
+      return res.status(400).json({
+        correct: false,
+        message: "A valid X-Stage-Id header is required."
+      });
+    }
+
+    if (!validateStageRequest(req, stage)) {
+      return res.status(400).json({
+        correct: false,
+        stageId: stage.id,
+        message:
+          "Incorrect request. Your request preview and the expected response are shown below.",
+        statusCode: 400,
+        data: null,
+        attempted: getAttemptedGetResponse(req),
+        expected: getExpectedStageResult(stage)
+      });
+    }
+
+    return handler(req, res, stage);
+  };
+}
+
+function getAllFlights(req, res, stage) {
   return sendStageResult(
     res,
     stage,
     true,
     200,
-    flights,
+    getFlights(req.query),
     "Flights returned successfully."
   );
 }
 
-
-/*
-  GET /api/flights/:id
-*/
-
-function getFlightById(
-  req,
-  res,
-  stage
-) {
-  const id =
-    Number(req.params.id);
-
-  const flight =
-    data.flights.find(
-      item => item.id === id
-    );
+function getFlightById(req, res, stage) {
+  const flight = data.flights.find(
+    item => item.id === Number(req.params.id)
+  );
 
   if (!flight) {
     return sendStageResult(
@@ -257,46 +360,15 @@ function getFlightById(
   );
 }
 
-
-/*
-  POST /api/flights
-*/
-
-function createFlight(
-  req,
-  res,
-  stage
-) {
-  const {
-    airline,
-    from,
-    to,
-    price,
-    seats
-  } = req.body || {};
-
-  /*
-    Server-side validation
-  */
+function createFlight(req, res, stage) {
+  const { airline, from, to, price, seats } = req.body || {};
 
   if (
     typeof airline !== "string" ||
     typeof from !== "string" ||
     typeof to !== "string" ||
     typeof price !== "number" ||
-    typeof seats !== "number"
-  ) {
-    return sendStageResult(
-      res,
-      stage,
-      false,
-      400,
-      null,
-      "Invalid body. airline, from and to must be strings, while price and seats must be numbers."
-    );
-  }
-
-  if (
+    typeof seats !== "number" ||
     airline.trim() === "" ||
     from.trim() === "" ||
     to.trim() === "" ||
@@ -334,23 +406,10 @@ function createFlight(
   );
 }
 
-
-/*
-  PATCH /api/flights/:id
-*/
-
-function updateFlight(
-  req,
-  res,
-  stage
-) {
-  const id =
-    Number(req.params.id);
-
-  const flight =
-    data.flights.find(
-      item => item.id === id
-    );
+function updateFlight(req, res, stage) {
+  const flight = data.flights.find(
+    item => item.id === Number(req.params.id)
+  );
 
   if (!flight) {
     return sendStageResult(
@@ -372,16 +431,11 @@ function updateFlight(
   ];
 
   const body = req.body || {};
-
-  const keys =
-    Object.keys(body);
+  const keys = Object.keys(body);
 
   if (
     keys.length === 0 ||
-    keys.some(
-      key =>
-        !allowedFields.includes(key)
-    )
+    keys.some(key => !allowedFields.includes(key))
   ) {
     return sendStageResult(
       res,
@@ -393,16 +447,9 @@ function updateFlight(
     );
   }
 
-  /*
-    Basic validation
-  */
-
   if (
     body.price !== undefined &&
-    (
-      typeof body.price !== "number" ||
-      body.price < 0
-    )
+    (typeof body.price !== "number" || body.price < 0)
   ) {
     return sendStageResult(
       res,
@@ -416,10 +463,7 @@ function updateFlight(
 
   if (
     body.seats !== undefined &&
-    (
-      typeof body.seats !== "number" ||
-      body.seats < 0
-    )
+    (typeof body.seats !== "number" || body.seats < 0)
   ) {
     return sendStageResult(
       res,
@@ -445,24 +489,10 @@ function updateFlight(
   );
 }
 
-
-/*
-  DELETE /api/bookings/:id
-*/
-
-function deleteBooking(
-  req,
-  res,
-  stage
-) {
-  const id =
-    Number(req.params.id);
-
-  const index =
-    data.bookings.findIndex(
-      booking =>
-        booking.id === id
-    );
+function deleteBooking(req, res, stage) {
+  const index = data.bookings.findIndex(
+    booking => booking.id === Number(req.params.id)
+  );
 
   if (index === -1) {
     return sendStageResult(
@@ -475,11 +505,7 @@ function deleteBooking(
     );
   }
 
-  const deletedBooking =
-    data.bookings.splice(
-      index,
-      1
-    )[0];
+  const deletedBooking = data.bookings.splice(index, 1)[0];
 
   return sendStageResult(
     res,
@@ -491,25 +517,11 @@ function deleteBooking(
   );
 }
 
-
-/*
-  GET /api/flights/:id/bookings
-
-  Nested REST resource
-*/
-
-function getFlightBookings(
-  req,
-  res,
-  stage
-) {
-  const flightId =
-    Number(req.params.id);
-
-  const flight =
-    data.flights.find(
-      item => item.id === flightId
-    );
+function getFlightBookings(req, res, stage) {
+  const flightId = Number(req.params.id);
+  const flight = data.flights.find(
+    item => item.id === flightId
+  );
 
   if (!flight) {
     return sendStageResult(
@@ -522,11 +534,9 @@ function getFlightBookings(
     );
   }
 
-  const bookings =
-    data.bookings.filter(
-      booking =>
-        booking.flightId === flightId
-    );
+  const bookings = data.bookings.filter(
+    booking => booking.flightId === flightId
+  );
 
   return sendStageResult(
     res,
@@ -538,182 +548,20 @@ function getFlightBookings(
   );
 }
 
+function createBooking(req, res, stage) {
+  const { passenger, flightId, seat } = req.body || {};
 
-/*
-  Execute the actual API operation.
-*/
-
-function executeRequest(
-  req,
-  res,
-  stage
-) {
-  const path =
-    req.path;
-
-  const method =
-    req.method;
-
-
-  /*
-    GET all flights
-  */
-
-  if (
-    method === "GET" &&
-    path === "/flights"
-  ) {
-    return getFlights(
-      req,
-      res,
-      stage
-    );
-  }
-
-
-  /*
-    GET one flight
-  */
-
-  const flightMatch =
-    path.match(
-      /^\/flights\/(\d+)$/
-    );
-
-  if (
-    method === "GET" &&
-    flightMatch
-  ) {
-    return getFlightById(
-      req,
-      res,
-      stage
-    );
-  }
-
-
-  /*
-    POST flight
-  */
-
-  if (
-    method === "POST" &&
-    path === "/flights"
-  ) {
-    return createFlight(
-      req,
-      res,
-      stage
-    );
-  }
-
-
-  /*
-    PATCH flight
-  */
-
-  const patchMatch =
-    path.match(
-      /^\/flights\/(\d+)$/
-    );
-
-  if (
-    method === "PATCH" &&
-    patchMatch
-  ) {
-    return updateFlight(
-      req,
-      res,
-      stage
-    );
-  }
-
-
-  /*
-    DELETE booking
-  */
-
-  const bookingMatch =
-    path.match(
-      /^\/bookings\/(\d+)$/
-    );
-
-  if (
-    method === "DELETE" &&
-    bookingMatch
-  ) {
-    return deleteBooking(
-      req,
-      res,
-      stage
-    );
-  }
-
-
-  /*
-    GET bookings belonging to a flight
-  */
-
-  const flightBookingsMatch =
-    path.match(
-      /^\/flights\/(\d+)\/bookings$/
-    );
-
-  if (
-    method === "GET" &&
-    flightBookingsMatch
-  ) {
-    return getFlightBookings(
-      req,
-      res,
-      stage
-    );
-  }
-
-
-  /*
-    Unknown route
-  */
-
-  return sendStageResult(
-    res,
-    stage,
-    false,
-    404,
-    null,
-    "Route not found. Check the HTTP method and path."
+  const flightExists = data.flights.some(
+    flight => flight.id === flightId
   );
-}
-
-
-/*
-  All API requests go through this middleware.
-*/
-
-router.all("*", (req, res) => {
-  const stage =
-    getStage(
-      req.header("X-Stage-Id")
-    );
-
-  if (!stage) {
-    return res.status(400).json({
-      correct: false,
-      message:
-        "A valid X-Stage-Id header is required."
-    });
-  }
-
-  /*
-    First check whether the request
-    matches the expected solution.
-  */
 
   if (
-    !validateStageRequest(
-      req,
-      stage
-    )
+    typeof passenger !== "string" ||
+    typeof flightId !== "number" ||
+    typeof seat !== "string" ||
+    passenger.trim() === "" ||
+    seat.trim() === "" ||
+    !flightExists
   ) {
     return sendStageResult(
       res,
@@ -721,21 +569,125 @@ router.all("*", (req, res) => {
       false,
       400,
       null,
-      "Incorrect request for this stage. Check the Method, Path, Query Parameters and Request Body."
+      "Invalid booking data."
     );
   }
 
-  /*
-    If the request is correct,
-    actually perform the operation.
-  */
+  const booking = {
+    id: nextId(data.bookings),
+    passenger,
+    flightId,
+    seat
+  };
 
-  return executeRequest(
-    req,
+  data.bookings.push(booking);
+
+  return sendStageResult(
     res,
-    stage
+    stage,
+    true,
+    201,
+    booking,
+    "Booking created successfully."
   );
-});
+}
 
+function updateBooking(req, res, stage) {
+  const booking = data.bookings.find(
+    item => item.id === Number(req.params.id)
+  );
+
+  if (!booking) {
+    return sendStageResult(
+      res,
+      stage,
+      false,
+      404,
+      null,
+      "Booking not found."
+    );
+  }
+
+  const body = req.body || {};
+  const keys = Object.keys(body);
+
+  if (
+    keys.length === 0 ||
+    keys.some(key => !["passenger", "seat"].includes(key))
+  ) {
+    return sendStageResult(
+      res,
+      stage,
+      false,
+      400,
+      null,
+      "Invalid booking update."
+    );
+  }
+
+  if (
+    typeof body.seat === "string" &&
+    body.seat.trim() === ""
+  ) {
+    return sendStageResult(
+      res,
+      stage,
+      false,
+      400,
+      null,
+      "Seat cannot be empty."
+    );
+  }
+
+  if (
+    typeof body.passenger === "string" &&
+    body.passenger.trim() === ""
+  ) {
+    return sendStageResult(
+      res,
+      stage,
+      false,
+      400,
+      null,
+      "Passenger cannot be empty."
+    );
+  }
+
+  keys.forEach(key => {
+    booking[key] = body[key];
+  });
+
+  return sendStageResult(
+    res,
+    stage,
+    true,
+    200,
+    booking,
+    "Booking updated successfully."
+  );
+}
+
+router.get("/flights", stageGuard(getAllFlights));
+router.get("/flights/:id", stageGuard(getFlightById));
+router.post("/flights", stageGuard(createFlight));
+router.patch("/flights/:id", stageGuard(updateFlight));
+router.delete("/bookings/:id", stageGuard(deleteBooking));
+router.get("/flights/:id/bookings", stageGuard(getFlightBookings));
+router.post("/bookings", stageGuard(createBooking));
+router.patch("/bookings/:id", stageGuard(updateBooking));
+
+
+router.use(
+  stageGuard((req, res, stage) => {
+    return sendStageResult(
+      res,
+      stage,
+      false,
+      404,
+      null,
+      "Route not found."
+    );
+  })
+);
 
 module.exports = router;
