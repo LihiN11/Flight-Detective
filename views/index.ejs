@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+  <meta charset="UTF-8">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
+
+  <title><%= title %></title>
+
+  <link
+    rel="stylesheet"
+    href="/styles.css"
+  >
+
+  <script
+    src="/app.js"
+    defer
+  ></script>
+
+</head>
+
+
+<body>
+
+  <header class="hero">
+
+    <nav class="navbar">
+
+      <a
+        class="logo"
+        href="/"
+      >
+        ✈️ Flight Detective
+      </a>
+
+      <a
+        class="schemas-link"
+        href="/schemas"
+      >
+        API Schemas
+      </a>
+
+    </nav>
+
+
+    <div class="hero-content">
+
+      <p class="eyebrow">
+        LEARN HTTP • REST • AJAX
+      </p>
+
+      <h1>
+        Flight Detective
+      </h1>
+
+      <p>
+        Build the correct HTTP request,
+        send it to the server,
+        and complete every flight mission.
+      </p>
+
+    </div>
+
+  </header>
+
+
+  <main>
+
+    <section class="game-shell">
+
+
+      <!-- TOP -->
+
+      <div class="top-row">
+
+        <div>
+
+          <p class="eyebrow">
+            CURRENT MISSION
+          </p>
+
+          <h2 id="stage-title">
+            Loading...
+          </h2>
+
+        </div>
+
+
+        <div class="progress-wrap">
+
+          <span id="stage-counter">
+            Stage 1 of <%= stageCount %>
+          </span>
+
+          <div class="progress-track">
+
+            <div
+              id="progress-bar"
+            ></div>
+
+          </div>
+
+        </div>
+
+      </div>
+
+
+      <!-- SCENARIO -->
+
+      <div class="scenario">
+
+        <div class="scenario-icon">
+          ✈️
+        </div>
+
+        <div>
+
+          <h3>
+            Flight Mission
+          </h3>
+
+          <p
+            id="stage-description"
+          ></p>
+
+          <p
+            class="hint"
+            id="stage-hint"
+          ></p>
+
+        </div>
+
+      </div>
+
+
+      <!-- REQUEST BUILDER -->
+
+      <form
+        id="request-form"
+      >
+
+
+        <!-- METHOD + PATH -->
+
+        <div class="request-grid">
+
+
+          <label>
+
+            HTTP Method
+
+            <select id="method">
+
+              <option value="GET">
+                GET
+              </option>
+
+              <option value="POST">
+                POST
+              </option>
+
+              <option value="PUT">
+                PUT
+              </option>
+
+              <option value="PATCH">
+                PATCH
+              </option>
+
+              <option value="DELETE">
+                DELETE
+              </option>
+
+            </select>
+
+          </label>
+
+
+          <label class="path-field">
+
+            Request Path
+
+            <input
+              id="path"
+              type="text"
+              placeholder="/api/flights/3"
+              autocomplete="off"
+            >
+
+          </label>
+
+        </div>
+
+
+        <!-- QUERY PARAMETERS -->
+
+        <div class="builder-section">
+
+          <div class="section-title">
+
+            <h3>
+              Query Parameters
+            </h3>
+
+            <span>
+              Optional
+            </span>
+
+          </div>
+
+
+          <p class="helper">
+
+            Query Parameters are added
+            after <code>?</code> in the URL.
+
+            Example:
+
+            <code>?to=Paris</code>
+
+          </p>
+
+
+          <div
+            id="query-list"
+          ></div>
+
+
+          <button
+            type="button"
+            class="small-button"
+            id="add-query"
+          >
+            + Add Query Parameter
+          </button>
+
+        </div>
+
+
+        <!-- ROUTE PARAMETERS -->
+
+        <div class="builder-section">
+
+          <div class="section-title">
+
+            <h3>
+              Route Parameters
+            </h3>
+
+            <span>
+              Part of the path
+            </span>
+
+          </div>
+
+
+          <p class="helper">
+
+            Example:
+
+            <code>/api/flights/3</code>
+
+            →
+
+            <strong>3</strong>
+
+            is the Route Parameter.
+
+          </p>
+
+        </div>
+
+
+        <!-- BODY -->
+
+        <div class="builder-section">
+
+          <div class="section-title">
+
+            <h3>
+              Request Body
+            </h3>
+
+            <span>
+              JSON
+            </span>
+
+          </div>
+
+
+          <p class="helper">
+
+            Request Body is used when
+            sending data to the server.
+
+          </p>
+
+
+          <textarea
+            id="body"
+            rows="8"
+            placeholder='{"airline":"ITA Airways","from":"TLV","to":"Rome","price":220,"seats":10}'
+          ></textarea>
+
+        </div>
+
+
+        <!-- SEND -->
+
+        <button
+          class="send-button"
+          type="submit"
+        >
+
+          ✈️ Send HTTP Request
+
+        </button>
+
+
+      </form>
+
+
+      <!-- RESPONSE -->
+
+      <section
+        id="response-panel"
+        class="response-panel hidden"
+      >
+
+        <div class="response-heading">
+
+          <div>
+
+            <p class="eyebrow">
+              SERVER RESPONSE
+            </p>
+
+            <h3
+              id="response-title"
+            ></h3>
+
+          </div>
+
+          <span
+            id="status-badge"
+          ></span>
+
+        </div>
+
+
+        <p
+          id="response-message"
+        ></p>
+
+
+        <pre
+          id="response-data"
+        ></pre>
+
+
+        <!-- NEXT -->
+
+        <div
+          id="next-area"
+          class="next-area hidden"
+        >
+
+          <button
+            id="next-button"
+            class="next-button"
+            type="button"
+          >
+
+            Next Mission →
+
+          </button>
+
+        </div>
+
+      </section>
+
+
+    </section>
+
+  </main>
+
+
+  <footer>
+
+    <p>
+      ✈️ Flight Detective
+      • Node.js
+      • Express
+      • EJS
+      • Vanilla JavaScript
+    </p>
+
+  </footer>
+
+</body>
+
+</html>

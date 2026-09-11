@@ -1,0 +1,78 @@
+{
+  "flights": [
+    {
+      "id": 1,
+      "airline": "El Al",
+      "from": "TLV",
+      "to": "KRK",
+      "price": 420,
+      "seats": 12
+    },
+    {
+      "id": 2,
+      "airline": "LOT",
+      "from": "TLV",
+      "to": "WAW",
+      "price": 380,
+      "seats": 7
+    },
+    {
+      "id": 3,
+      "airline": "Ryanair",
+      "from": "KRK",
+      "to": "Paris",
+      "price": 95,
+      "seats": 20
+    },
+    {
+      "id": 4,
+      "airline": "Wizz Air",
+      "from": "TLV",
+      "to": "Budapest",
+      "price": 140,
+      "seats": 18
+    },
+    {
+      "id": 5,
+      "airline": "Lufthansa",
+      "from": "TLV",
+      "to": "Munich",
+      "price": 510,
+      "seats": 5
+    },
+    {
+      "id": 6,
+      "airline": "Ryanair",
+      "from": "KRK",
+      "to": "Paris",
+      "price": 120,
+      "seats": 14
+    }
+  ],
+  "bookings": [
+    {
+      "id": 1,
+      "passenger": "Lihi",
+      "flightId": 1,
+      "seat": "12A"
+    },
+    {
+      "id": 2,
+      "passenger": "Noa",
+      "flightId": 3,
+      "seat": "8B"
+    },
+    {
+      "id": 3,
+      "passenger": "Dana",
+      "flightId": 3,
+      "seat": "15C"
+    },
+    {
+      "id": 4,
+      "passenger": "Maya",
+      "flightId": 2,
+      "seat": "4A"
+    }
+  ]
+}

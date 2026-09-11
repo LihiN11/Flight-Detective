@@ -1,0 +1,14 @@
+{
+  "name": "flight-detective",
+  "version": "1.0.0",
+  "description": "HTTP and REST learning game about flights",
+  "main": "src/server.js",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "node --watch src/server.js"
+  },
+  "dependencies": {
+    "ejs": "^3.1.10",
+    "express": "^4.21.2"
+  }
+}
