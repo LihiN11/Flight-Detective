@@ -189,6 +189,7 @@ async function sendRequest(event) {
   event.preventDefault();
 
   responsePanel.classList.remove("hidden");
+  responsePanel.classList.remove("response-error");
   expectedPanel.classList.add("hidden");
   nextArea.classList.add("hidden");
 
@@ -240,6 +241,8 @@ async function sendRequest(event) {
     statusBadge.className = isCorrect
       ? "status-success"
       : "status-error";
+
+    responsePanel.classList.toggle("response-error", !isCorrect);
 
     const attemptedResponse =
       result.attempted || {

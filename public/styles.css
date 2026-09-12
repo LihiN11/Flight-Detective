@@ -332,6 +332,16 @@ code {
   color: #d7dce6;
 }
 
+.console.response-error {
+  background: #241a21;
+  border: 1px solid #a94750;
+}
+
+.console.response-error #response-title,
+.console.response-error #response-message {
+  color: #ffb0b4;
+}
+
 .console-heading {
   display: flex;
   justify-content: space-between;
@@ -399,10 +409,18 @@ code {
 }
 
 .console-expected {
-  background: transparent;
-  border: 1px dashed var(--ink-line);
+  background: #1c2638;
+  border: 1px solid #c47d24;
 }
 
+.console-expected .console-label {
+  color: #f1b85b;
+}
+
+.console-expected #expected-response-data {
+  background: #111827;
+  border-color: #d99a3e;
+  color: #ffd889;
 
 .next-area {
   margin-top: 18px;
