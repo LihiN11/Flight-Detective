@@ -12,10 +12,6 @@ const app =
   express();
 
 
-/*
-  EJS configuration
-*/
-
 app.set(
   "view engine",
   "ejs"
@@ -30,10 +26,6 @@ app.set(
   )
 );
 
-
-/*
-  Middleware
-*/
 
 app.use(
   express.json()
@@ -50,11 +42,6 @@ app.use(
 );
 
 
-/*
-  Main game page
-  GET /
-*/
-
 app.get("/", (req, res) => {
   res.render(
     "index",
@@ -65,11 +52,6 @@ app.get("/", (req, res) => {
   );
 });
 
-
-/*
-  Schemas page
-  GET /schemas
-*/
 
 app.get(
   "/schemas",
@@ -110,19 +92,11 @@ app.get(
 );
 
 
-/*
-  API routes
-*/
-
 app.use(
   "/api",
   apiRouter
 );
 
-
-/*
-  General 404
-*/
 
 app.use(
   (req, res) => {
@@ -133,10 +107,6 @@ app.use(
   }
 );
 
-
-/*
-  Invalid JSON error
-*/
 
 app.use(
   (

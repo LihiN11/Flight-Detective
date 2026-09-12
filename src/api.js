@@ -68,6 +68,18 @@ function sendStageResult(
   });
 }
 
+function sortByField(items, field) {
+  if (!field) {
+    return items;
+  }
+
+  return [...items].sort((a, b) => {
+    if (a[field] > b[field]) return 1;
+    if (a[field] < b[field]) return -1;
+    return 0;
+  });
+}
+
 function getFlights(query) {
   let flights = [...data.flights];
 
@@ -105,10 +117,6 @@ function getFlights(query) {
   return flights;
 }
 
-/*
-  This returns a preview only.
-  It never changes the data in memory.
-*/
 function getExpectedStageResult(stage) {
   const path = stage.path.replace("/api", "");
   const flightMatch = path.match(/^\/flights\/(\d+)$/);
@@ -132,8 +140,11 @@ function getExpectedStageResult(stage) {
     return flight
       ? {
           statusCode: 200,
-          data: data.bookings.filter(
-            booking => booking.flightId === flightId
+          data: sortByField(
+            data.bookings.filter(
+              booking => booking.flightId === flightId
+            ),
+            stage.query.sort
           )
         }
       : {
@@ -202,6 +213,7 @@ function getExpectedStageResult(stage) {
           data: null
         };
   }
+  
 if (stage.method === "POST" && path === "/bookings") {
   return {
     statusCode: 201,
@@ -235,7 +247,9 @@ if (stage.method === "PATCH" && bookingMatch) {
     statusCode: 404,
     data: null
   };
-}function getAttemptedGetResponse(req) {
+}
+
+function getAttemptedGetResponse(req) {
   if (req.method !== "GET") {
     return null;
   }
@@ -260,8 +274,11 @@ if (stage.method === "PATCH" && bookingMatch) {
     return flight
       ? {
           statusCode: 200,
-          data: data.bookings.filter(
-            booking => booking.flightId === flightId
+          data: sortByField(
+            data.bookings.filter(
+              booking => booking.flightId === flightId
+            ),
+            req.query.sort
           )
         }
       : {
@@ -534,8 +551,11 @@ function getFlightBookings(req, res, stage) {
     );
   }
 
-  const bookings = data.bookings.filter(
-    booking => booking.flightId === flightId
+  const bookings = sortByField(
+    data.bookings.filter(
+      booking => booking.flightId === flightId
+    ),
+    req.query.sort
   );
 
   return sendStageResult(

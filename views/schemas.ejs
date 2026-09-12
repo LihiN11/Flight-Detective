@@ -1,150 +1,61 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-
   <meta charset="UTF-8">
-
-  <meta
-    name="viewport"
-    content="width=device-width, initial-scale=1.0"
-  >
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
   <title><%= title %></title>
 
-  <link
-    rel="stylesheet"
-    href="/styles.css"
-  >
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
 
+  <link rel="stylesheet" href="/styles.css">
 </head>
 
-
 <body>
-
-
-  <header class="simple-header">
-
-    <nav class="navbar">
-
-      <a
-        class="logo"
-        href="/"
-      >
-        ✈️ Flight Detective
-      </a>
-
-      <a
-        class="schemas-link"
-        href="/"
-      >
-        Game
-      </a>
-
-    </nav>
-
-
-    <div class="hero-content">
-
-      <p class="eyebrow">
-        SERVER-SIDE RENDERED PAGE
-      </p>
-
-      <h1>
-        API Schemas
-      </h1>
-
-      <p>
-        The following schemas are sent
-        from the server and rendered
-        using EJS.
-      </p>
-
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a class="wordmark" href="/">Flight Detective</a>
+      <a class="topbar-link" href="/">Back to the game</a>
     </div>
-
   </header>
 
+  <div class="schemas-intro">
+    <p>
+      Rendered server-side with EJS. These are the resources the
+      API works with, and the fields each one returns.
+    </p>
+  </div>
 
   <main class="schemas-page">
-
-
     <% schemas.forEach((schema) => { %>
-
-
       <section class="schema-card">
-
-        <div class="schema-icon">
-          ✈️
-        </div>
-
-        <h2>
-          <%= schema.resource %>
-        </h2>
-
+        <h2><%= schema.resource %></h2>
 
         <table>
-
           <thead>
-
             <tr>
-
-              <th>
-                Field
-              </th>
-
-              <th>
-                Data Type
-              </th>
-
+              <th>Field</th>
+              <th>Type</th>
             </tr>
-
           </thead>
 
-
           <tbody>
-
-
             <% schema.fields.forEach((field) => { %>
-
-
               <tr>
-
-                <td>
-                  <%= field[0] %>
-                </td>
-
-                <td>
-                  <%= field[1] %>
-                </td>
-
+                <td><%= field[0] %></td>
+                <td><%= field[1] %></td>
               </tr>
-
-
             <% }) %>
-
-
           </tbody>
-
         </table>
-
       </section>
-
-
     <% }) %>
-
-
   </main>
 
-
   <footer>
-
-    <p>
-      ✈️ Flight Detective
-    </p>
-
+    <p>Flight Detective — Node.js, Express, EJS, vanilla JavaScript.</p>
   </footer>
-
-
 </body>
-
 </html>

@@ -41,7 +41,7 @@ http://localhost:3000/schemas
 ## Project structure
 
 ```text
-http-rest-game/
+Flight-Detective/
 ├── data/
 │   └── data.json
 ├── public/
@@ -85,3 +85,6 @@ http-rest-game/
 6. DELETE + Route Parameter
 7. GET + related resources + Route Parameter
 8. GET + Route Parameter + expected 404 Not Found
+9. POST + Request Body (Bookings resource)
+10. PATCH + Route Parameter + Request Body (Bookings resource)
+11. GET + Route Parameter + Query Parameter (sort the nested bookings of one flight)

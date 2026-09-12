@@ -68,6 +68,14 @@ const stages = [
       "Change booking 2 so that its seat becomes 9B.",
     hint:
       "This is a booking, so use PATCH on /api/bookings/2."
+  },
+  {
+    id: 11,
+    title: "Sort a flight's bookings",
+    description:
+      "Display all bookings for flight 3, sorted alphabetically by passenger name.",
+    hint:
+      "Combine the nested bookings Route Parameter with a sort Query Parameter."
   }
 ];
 

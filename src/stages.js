@@ -138,6 +138,20 @@ const stages = [
     body: {
       seat: "9B"
     }
+  },
+  {
+    id: 11,
+    title: "Sort a flight's bookings",
+    description:
+      "Display all bookings for flight 3, sorted alphabetically by passenger name.",
+    hint:
+      "Combine the nested bookings Route Parameter with a sort Query Parameter.",
+    method: "GET",
+    path: "/api/flights/3/bookings",
+    query: {
+      sort: "passenger"
+    },
+    body: null
   }
 ];
 

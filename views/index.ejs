@@ -2,76 +2,51 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-
-  <meta
-    name="viewport"
-    content="width=device-width, initial-scale=1.0"
-  >
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
   <title><%= title %></title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
 
   <link rel="stylesheet" href="/styles.css">
   <script src="/app.js" defer></script>
 </head>
 
 <body>
-  <header class="hero">
-    <nav class="navbar">
-      <a class="logo" href="/">
-        ✈️ Flight Detective
-      </a>
-
-      <a class="schemas-link" href="/schemas">
-        API Schemas
-      </a>
-    </nav>
-
-    <div class="hero-content">
-      <p class="eyebrow">LEARN HTTP • REST • AJAX</p>
-
-      <h1>Flight Detective</h1>
-
-      <p>
-        Build the correct HTTP request, send it to the server,
-        and complete every flight mission.
-      </p>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a class="wordmark" href="/">Flight Detective</a>
+      <a class="topbar-link" href="/schemas">API schemas</a>
     </div>
   </header>
 
+  <div class="board">
+    <div class="board-inner">
+      <span id="stage-counter">Mission 1 of <%= stageCount %></span>
+      <div class="progress-track">
+        <div id="progress-bar"></div>
+      </div>
+    </div>
+  </div>
+
   <main>
     <section class="game-shell">
-      <div class="top-row">
-        <div>
-          <p class="eyebrow">CURRENT MISSION</p>
-          <h2 id="stage-title">Loading...</h2>
-        </div>
+      <section class="stub">
+        <div class="stub-rule"></div>
 
-        <div class="progress-wrap">
-          <span id="stage-counter">
-            Mission 1 of <%= stageCount %>
-          </span>
-
-          <div class="progress-track">
-            <div id="progress-bar"></div>
-          </div>
-        </div>
-      </div>
-
-      <section class="scenario">
-        <div class="scenario-icon">✈️</div>
-
-        <div>
-          <h3>Flight Mission</h3>
+        <div class="stub-body">
+          <h2 id="stage-title">Loading…</h2>
           <p id="stage-description"></p>
           <p class="hint" id="stage-hint"></p>
         </div>
       </section>
 
-      <form id="request-form">
+      <form id="request-form" class="builder">
         <div class="request-grid">
           <label>
-            HTTP Method
-
+            Method
             <select id="method">
               <option value="GET">GET</option>
               <option value="POST">POST</option>
@@ -82,8 +57,7 @@
           </label>
 
           <label class="path-field">
-            Request Path
-
+            Request path
             <input
               id="path"
               type="text"
@@ -95,84 +69,57 @@
 
         <section class="builder-section">
           <div class="section-title">
-            <h3>Query Parameters</h3>
-            <span>Optional</span>
+            <h3>Query parameters</h3>
           </div>
 
           <p class="helper">
-            Example: <code>to=Paris</code>
+            For example <code>to=Paris</code>
           </p>
 
           <div id="query-list"></div>
 
-          <button
-            type="button"
-            class="small-button"
-            id="add-query"
-          >
-            + Add Query Parameter
+          <button type="button" class="ghost-button" id="add-query">
+            + Add parameter
           </button>
         </section>
 
         <section class="builder-section">
           <div class="section-title">
-            <h3>Request Body</h3>
+            <h3>Request body</h3>
             <span>JSON</span>
           </div>
 
           <textarea
             id="body"
-            rows="8"
+            rows="7"
             placeholder='{"airline":"ITA Airways","from":"TLV","to":"Rome","price":220,"seats":10}'
           ></textarea>
         </section>
 
-        <button class="send-button" type="submit">
-          ✈️ Send HTTP Request
-        </button>
+        <button class="send-button" type="submit">Send request</button>
       </form>
 
-      <section
-        id="response-panel"
-        class="response-panel hidden"
-      >
-        <div class="response-heading">
-          <div>
-            <p class="eyebrow">ACTUAL SERVER RESPONSE</p>
-            <h3 id="response-title"></h3>
-          </div>
-
-          <span id="status-badge"></span>
+      <section id="response-panel" class="console hidden">
+        <div class="console-heading">
+          <p class="console-label">Server response</p>
+          <span id="status-badge" class="status-badge"></span>
         </div>
 
+        <h3 id="response-title"></h3>
         <p id="response-message"></p>
         <pre id="response-data"></pre>
 
         <div id="next-area" class="next-area hidden">
-          <button
-            id="next-button"
-            class="next-button"
-            type="button"
-          >
-            Next Mission →
+          <button id="next-button" class="next-button" type="button">
+            Next mission
           </button>
         </div>
       </section>
 
-      <section
-        id="expected-panel"
-        class="response-panel hidden"
-      >
-        <div class="response-heading">
-          <div>
-            <p class="eyebrow">EXPECTED SERVER RESPONSE</p>
-
-            <h3>
-              This is what the correct request returns
-            </h3>
-          </div>
-
-          <span id="expected-status-badge"></span>
+      <section id="expected-panel" class="console console-expected hidden">
+        <div class="console-heading">
+          <p class="console-label">What a correct request returns</p>
+          <span id="expected-status-badge" class="status-badge"></span>
         </div>
 
         <pre id="expected-response-data"></pre>
@@ -181,9 +128,7 @@
   </main>
 
   <footer>
-    <p>
-      ✈️ Flight Detective • Node.js • Express • EJS • Vanilla JavaScript
-    </p>
+    <p>Flight Detective — Node.js, Express, EJS, vanilla JavaScript.</p>
   </footer>
 </body>
 </html>
