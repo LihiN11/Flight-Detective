@@ -333,13 +333,13 @@ code {
 }
 
 .console.response-error {
-  background: #241a21;
-  border: 1px solid #a94750;
+  background: var(--ink);
+  border: 1px solid rgba(224, 82, 82, 0.4);
 }
 
 .console.response-error #response-title,
 .console.response-error #response-message {
-  color: #ffb0b4;
+  color: #f4f6f9;
 }
 
 .console-heading {
@@ -409,38 +409,47 @@ code {
 }
 
 .console-expected {
-  background: #1c2638;
-  border: 1px solid #c47d24;
+  background: var(--ink-raised);
+  border: 1px solid var(--ink-line);
 }
 
 .console-expected .console-label {
-  color: #f1b85b;
+  color: var(--muted-light);
 }
 
 .console-expected #expected-response-data {
-  background: #111827;
-  border-color: #d99a3e;
+  background: rgba(255, 255, 255, 0.04);
+  border-color: var(--ink-line);
   color: #ffd889;
+}
 
 .next-area {
-  margin-top: 18px;
+  margin-top: 20px;
   text-align: right;
 }
 
 .next-button {
   border: none;
-  padding: 12px 20px;
+  padding: 16px 34px;
   background: var(--amber);
   color: var(--ink);
-  border-radius: 3px;
+  border-radius: 4px;
   font-weight: 700;
-  font-size: 14px;
+  font-size: 16px;
+  letter-spacing: 0.2px;
   cursor: pointer;
-  transition: filter 0.15s;
+  box-shadow: 0 4px 14px rgba(232, 153, 46, 0.35);
+  transition: filter 0.15s, transform 0.15s, box-shadow 0.15s;
 }
 
 .next-button:hover {
-  filter: brightness(0.93);
+  filter: brightness(0.95);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(232, 153, 46, 0.45);
+}
+
+.next-button:active {
+  transform: translateY(0);
 }
 
 
@@ -556,6 +565,14 @@ footer {
 
   .schemas-intro {
     padding: 24px 18px 0;
+  }
+
+  .next-area {
+    text-align: stretch;
+  }
+
+  .next-button {
+    width: 100%;
   }
 }
 
