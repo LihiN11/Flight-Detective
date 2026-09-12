@@ -429,27 +429,20 @@ code {
 }
 
 .next-button {
+  width: 100%;
   border: none;
-  padding: 16px 34px;
+  padding: 14px;
   background: var(--amber);
   color: var(--ink);
-  border-radius: 4px;
+  border-radius: 3px;
+  font-size: 15px;
   font-weight: 700;
-  font-size: 16px;
-  letter-spacing: 0.2px;
   cursor: pointer;
-  box-shadow: 0 4px 14px rgba(232, 153, 46, 0.35);
-  transition: filter 0.15s, transform 0.15s, box-shadow 0.15s;
+  transition: filter 0.15s;
 }
 
 .next-button:hover {
-  filter: brightness(0.95);
-  transform: translateY(-2px);
-  box-shadow: 0 6px 18px rgba(232, 153, 46, 0.45);
-}
-
-.next-button:active {
-  transform: translateY(0);
+  filter: brightness(0.93);
 }
 
 
@@ -565,14 +558,6 @@ footer {
 
   .schemas-intro {
     padding: 24px 18px 0;
-  }
-
-  .next-area {
-    text-align: stretch;
-  }
-
-  .next-button {
-    width: 100%;
   }
 }
 
