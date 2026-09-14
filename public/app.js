@@ -79,7 +79,22 @@ const stages = [
   }
 ];
 
-let currentStage = 0;
+const currentStageStorageKey = "flight-detective-current-stage";
+
+function loadCurrentStage() {
+  const storedStage = Number.parseInt(
+    sessionStorage.getItem(currentStageStorageKey),
+    10
+  );
+
+  return Number.isInteger(storedStage) &&
+    storedStage >= 0 &&
+    storedStage < stages.length
+    ? storedStage
+    : 0;
+}
+
+let currentStage = loadCurrentStage();
 
 const form = document.querySelector("#request-form");
 const methodInput = document.querySelector("#method");
@@ -308,6 +323,10 @@ function nextStage() {
   }
 
   currentStage++;
+  sessionStorage.setItem(
+    currentStageStorageKey,
+    String(currentStage)
+  );
   renderStage();
 
   window.scrollTo({
